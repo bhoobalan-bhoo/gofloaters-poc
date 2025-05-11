@@ -194,10 +194,18 @@ app.post('/pdfToJson', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: 'Failed to process PDF', details: error.message });
   }
 });
-
+const bufferToJson = (buffer) => {
+  const jsonString = buffer.toString();
+  return JSON.parse(jsonString);
+};
 // JSON to PDF conversion endpoint
 app.post('/jsonToPdf', async (req, res) => {
   try {
+    console.log("Received JSON data:", req.body);
+    // if body is buffer use bufferToJson
+    if (Buffer.isBuffer(req.body)) {
+      req.body = bufferToJson(req.body);
+    }
     const { pages } = req.body;
     
     if (!pages || !Array.isArray(pages)) {
@@ -239,6 +247,11 @@ app.post('/jsonToPdf', async (req, res) => {
               'base64'
             );
             
+            // Write image to tmp directory (for debugging or if needed)
+            const tempImagePath = path.join('/tmp', `image-${Date.now()}.${element.src.includes('image/png') ? 'png' : 'jpg'}`);
+            fs.writeFileSync(tempImagePath, imageBytes);
+            console.log(`Temporarily saved image to ${tempImagePath}`);
+            
             // Embed image in PDF
             let image;
             if (element.src.includes('image/png')) {
@@ -257,6 +270,9 @@ app.post('/jsonToPdf', async (req, res) => {
               width: element.width,
               height: element.height
             });
+            
+            // Clean up the temporary image file
+            fs.unlinkSync(tempImagePath);
           } catch (imgError) {
             console.error('Error embedding image:', imgError);
           }
@@ -267,10 +283,18 @@ app.post('/jsonToPdf', async (req, res) => {
     // Generate PDF bytes
     const pdfBytes = await pdfDoc.save();
 
+    // Optionally save PDF to tmp for debugging
+    const tempPdfPath = path.join('/tmp', `document-${Date.now()}.pdf`);
+    fs.writeFileSync(tempPdfPath, pdfBytes);
+    console.log(`Temporarily saved PDF to ${tempPdfPath}`);
+
     // Send response
     res.setHeader('Content-Disposition', 'attachment; filename=document.pdf');
     res.setHeader('Content-Type', 'application/pdf');
     res.send(Buffer.from(pdfBytes));
+    
+    // Clean up the temporary PDF file
+    fs.unlinkSync(tempPdfPath);
     
   } catch (error) {
     console.error('Error creating PDF:', error);
