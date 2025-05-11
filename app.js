@@ -7,7 +7,19 @@ const path = require('path');
 const { createCanvas } = require('canvas');
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
+// Setup multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Use tmp directory
+        cb(null, '/tmp');
+    },
+    filename: (req, file, cb) => {
+        // Generate a unique filename
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // Configure express to handle larger payloads
 app.use(bodyParser.json({ limit: '50mb' }));

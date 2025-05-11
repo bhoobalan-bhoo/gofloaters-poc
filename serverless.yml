@@ -1,0 +1,15 @@
+service: GofloatersPoC
+
+provider:
+  name: aws
+  stage: dev
+  profile: bhoo-pvt
+  region: ap-south-1
+  runtime: nodejs20.x
+  timeout: 180
+functions:
+  app:
+    handler: server.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
