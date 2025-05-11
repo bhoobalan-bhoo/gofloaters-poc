@@ -303,7 +303,7 @@ app.get('/', (req, res) => {
       
       <div class="container">
         <h2>PDF to JSON</h2>
-        <form action="/pdfToJson" method="post" enctype="multipart/form-data">
+        <form action="/dev/pdfToJson" method="post" enctype="multipart/form-data">
           <div>
             <label for="pdfFile">Select PDF File:</label>
             <input type="file" id="pdfFile" name="file" accept=".pdf" required>
@@ -335,7 +335,7 @@ app.get('/', (req, res) => {
             reader.onload = async function(e) {
               const jsonData = JSON.parse(e.target.result);
               
-              const response = await fetch('/jsonToPdf', {
+              const response = await fetch('/dev/jsonToPdf', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
