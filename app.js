@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require('multer');
+const { PDFDocument, rgb } = require('pdf-lib');
+const fontkit = require('@pdf-lib/fontkit');
 const fs = require('fs');
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const bodyParser = require('body-parser');
